@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+venv/
+env/
+.env
+
+# Node
+node_modules/
+build/
+dist/
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# ML Models (too large for git)
+*.pkl
+*.h5
+*.pth
+models/*.pkl
+
+# Data files
+*.csv
+*.json
+data/
