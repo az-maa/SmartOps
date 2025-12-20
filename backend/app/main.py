@@ -38,6 +38,11 @@ async def health_check():
 from app.controllers import auth_controller
 
 app.include_router(auth_controller.router, prefix="/api/auth", tags=["auth"])
+# Include routers
+from app.controllers import auth_controller, server_controller
+
+app.include_router(auth_controller.router, prefix="/api/auth", tags=["auth"])
+app.include_router(server_controller.router, prefix="/api/servers", tags=["servers"])
 
 # TODO: Add more routers as you build them
 # from app.controllers import server_controller
