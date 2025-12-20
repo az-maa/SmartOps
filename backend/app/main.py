@@ -41,7 +41,8 @@ from app.controllers import (
     server_controller,
     metrics_controller,
     anomaly_controller,
-    prediction_controller
+    prediction_controller,
+    notification_controller
 )
 
 # Register all routers (ONLY ONCE!)
@@ -50,3 +51,4 @@ app.include_router(server_controller.router, prefix="/api/servers", tags=["Serve
 app.include_router(metrics_controller.router, prefix="/api/metrics", tags=["Metrics"])
 app.include_router(anomaly_controller.router, prefix="/api/anomalies", tags=["Anomalies"])
 app.include_router(prediction_controller.router, prefix="/api/predictions", tags=["Predictions"])
+app.include_router(notification_controller.router, prefix="/api/notifications", tags=["Notifications"])
