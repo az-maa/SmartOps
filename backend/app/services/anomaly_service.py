@@ -9,12 +9,14 @@ from app.schemas.anomaly import (
 from app.core.exceptions import NotFoundException, ForbiddenException
 from datetime import datetime
 from typing import Optional
-
+from app.repositories.notification_repository import NotificationRepository
+from app.schemas.notification import NotificationCreate
 
 class AnomalyService:
-    def __init__(self, anomaly_repo: AnomalyRepository, server_repo: ServerRepository):
+    def __init__(self, anomaly_repo: AnomalyRepository, server_repo: ServerRepository, notification_repo: NotificationRepository):
         self.anomaly_repo = anomaly_repo
         self.server_repo = server_repo
+        self.notification_repo = notification_repo
     
     async def create_anomaly(self, anomaly_data: AnomalyCreate) -> AnomalyResponse:
         """
@@ -34,6 +36,19 @@ class AnomalyService:
             severity=anomaly_data.severity,
             explanation=anomaly_data.explanation,
             metrics=anomaly_data.metrics
+        )
+        # 🔔 CREATE NOTIFICATION FOR USER
+        notification_title = f"Anomaly Detected: {anomaly_data.type.replace('_', ' ').title()}"
+        notification_message = f"Server '{server.name}': {anomaly_data.explanation[:200]}"
+        
+        await self.notification_repo.create_notification(
+            user_id=str(server.user_id),
+            title=notification_title,
+            message=notification_message,
+            type="anomaly",
+            severity=anomaly_data.severity,
+            related_id=str(anomaly.id),
+            related_type="anomaly"
         )
         
         return AnomalyResponse.model_validate(anomaly)

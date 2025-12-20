@@ -5,6 +5,7 @@ from app.services.anomaly_service import AnomalyService
 from app.repositories.anomaly_repository import AnomalyRepository
 from app.repositories.server_repository import ServerRepository
 from app.database.supabase import get_supabase
+from app.repositories.notification_repository import NotificationRepository
 
 router = APIRouter()
 
@@ -13,7 +14,8 @@ def get_anomaly_service(supabase: Client = Depends(get_supabase)) -> AnomalyServ
     """Dependency to get AnomalyService instance"""
     anomaly_repo = AnomalyRepository(supabase)
     server_repo = ServerRepository(supabase)
-    return AnomalyService(anomaly_repo, server_repo)
+    notification_repo = NotificationRepository(supabase)  # ADD THIS
+    return AnomalyService(anomaly_repo, server_repo, notification_repo)  # ADD notification_repo
 
 
 @router.post("", response_model=AnomalyResponse, status_code=201)
