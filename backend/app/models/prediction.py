@@ -1,17 +1,14 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Optional
+from pydantic import BaseModel
+from uuid import UUID
 
-class ForecastPoint(BaseModel):
-    timestamp: datetime
-    value: float
 
-class PredictionCreate(BaseModel):
-    server_id: str
-    forecast: List[ForecastPoint]
-
-class PredictionResponse(BaseModel):
-    id: str
-    server_id: str
-    forecast: List[dict]  # JSONB from DB
+class Prediction(BaseModel):
+    """Domain model for Prediction"""
+    id: UUID
+    server_id: UUID
+    forecast: dict  # JSON data containing prediction results
     created_at: datetime
+    
+    class Config:
+        from_attributes = True
