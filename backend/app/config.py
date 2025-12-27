@@ -18,7 +18,10 @@ class Settings(BaseSettings):
     SECRET_KEY: str  # For additional JWT operations if needed
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
+    #Gmail
+    GMAIL_USER: str
+    GMAIL_PASSWORD: str
+
     # CORS
     ALLOWED_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173"]
     
