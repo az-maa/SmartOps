@@ -29,3 +29,6 @@ models/*.pkl
 #*.csv
 *.json
 data/
+
+ai-service/Data_Pred/preprocessed_dataset.csv
+SmartOps-clean/
