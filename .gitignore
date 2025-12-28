@@ -26,6 +26,9 @@ dist/
 models/*.pkl
 
 # Data files
-*.csv
+#*.csv
 *.json
 data/
+
+ai-service/Data_Pred/preprocessed_dataset.csv
+SmartOps-clean/
