@@ -31,10 +31,14 @@ def get_metrics_service(supabase: Client = Depends(get_supabase)) -> MetricsServ
     return MetricsService(metrics_repo, server_repo)
 def get_anomaly_service(supabase: Client = Depends(get_supabase)) -> AnomalyService:
     """Dependency to get AnomalyService instance"""
+    from app.repositories.notification_repository import NotificationRepository
+    from app.repositories.user_repository import UserRepository
+    
     anomaly_repo = AnomalyRepository(supabase)
     server_repo = ServerRepository(supabase)
-    return AnomalyService(anomaly_repo, server_repo)
-
+    notification_repo = NotificationRepository(supabase)
+    user_repo = UserRepository(supabase)
+    return AnomalyService(anomaly_repo, server_repo, notification_repo, user_repo)
 
 def get_prediction_service(supabase: Client = Depends(get_supabase)) -> PredictionService:
     """Dependency to get PredictionService instance"""
