@@ -1,5 +1,7 @@
 from app.repositories.anomaly_repository import AnomalyRepository
 from app.repositories.server_repository import ServerRepository
+from app.repositories.user_repository import UserRepository  
+from app.services.email_service import email_service  
 from app.schemas.anomaly import (
     AnomalyCreate,
     AnomalyResponse,
@@ -13,10 +15,11 @@ from app.repositories.notification_repository import NotificationRepository
 from app.schemas.notification import NotificationCreate
 
 class AnomalyService:
-    def __init__(self, anomaly_repo: AnomalyRepository, server_repo: ServerRepository, notification_repo: NotificationRepository):
+    def __init__(self, anomaly_repo: AnomalyRepository, server_repo: ServerRepository, notification_repo: NotificationRepository,user_repo: UserRepository):
         self.anomaly_repo = anomaly_repo
         self.server_repo = server_repo
         self.notification_repo = notification_repo
+        self.user_repo = user_repo
     
     async def create_anomaly(self, anomaly_data: AnomalyCreate) -> AnomalyResponse:
         """
@@ -50,6 +53,17 @@ class AnomalyService:
             related_id=str(anomaly.id),
             related_type="anomaly"
         )
+        if anomaly_data.severity in ['critical', 'high']:
+    # Fire and forget - don't wait for email to complete
+         import asyncio
+         asyncio.create_task(
+         self._send_anomaly_email_async(
+            user_id=str(server.user_id),
+            server_name=server.name,
+            anomaly_data=anomaly_data
+         )
+    )
+        
         
         return AnomalyResponse.model_validate(anomaly)
     
@@ -135,3 +149,39 @@ class AnomalyService:
         stats = await self.anomaly_repo.get_anomaly_stats(server_id, days)
         
         return AnomalyStats(**stats)
+    
+    async def _send_anomaly_email_async(
+        self,
+        user_id: str,
+        server_name: str,
+        anomaly_data: AnomalyCreate
+    ):
+        """Méthode privée pour envoyer l'email en arrière-plan"""
+        try:
+            # Récupère l'utilisateur
+            user = await self.user_repo.get_user_by_id(user_id)
+            if not user or not user.email:
+                print(f"⚠️  Utilisateur {user_id} non trouvé ou sans email")
+                return
+            
+            # Envoie l'email
+            success = await email_service.send_anomaly_email(
+                to_email=user.email,
+                user_name=user.first_name or user.email.split('@')[0],
+                server_name=server_name,
+                anomaly_data={
+                    'type': anomaly_data.type,
+                    'severity': anomaly_data.severity,
+                    'timestamp': anomaly_data.timestamp,
+                    'explanation': anomaly_data.explanation
+                }
+            )
+            
+            if success:
+                print(f"📧 Email envoyé avec succès à {user.email}")
+            else:
+                print(f"❌ Échec d'envoi d'email à {user.email}")
+                
+        except Exception as e:
+            # On catch toutes les exceptions pour ne pas bloquer la création d'anomalie
+            print(f"⚠️  Erreur lors de l'envoi d'email: {e}")
