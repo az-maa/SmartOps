@@ -26,6 +26,6 @@ dist/
 models/*.pkl
 
 # Data files
-*.csv
+#*.csv
 *.json
 data/
